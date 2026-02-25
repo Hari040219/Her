@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>For Ammu 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --rose: #e8395a;
+    --blush: #f7c5d0;
+    --deep: #1a0a10;
+    --cream: #fff5f7;
+    --gold: #d4a853;
+  }
+
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    background: var(--deep);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Floating petals */
+  .petal {
+    position: fixed;
+    width: 8px; height: 12px;
+    background: radial-gradient(ellipse, #e8395a88, #e8395a22);
+    border-radius: 50% 0 50% 0;
+    animation: fall linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    will-change: transform;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* GENDER SELECTION SCREEN */
+  #genderScreen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    background: radial-gradient(ellipse at center, #2d0a17 0%, #0d0307 100%);
+    padding: 2rem 1.5rem;
+  }
+
+  #genderScreen h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 6vw, 2.2rem);
+    color: var(--blush);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  #genderScreen p {
+    color: #a06070;
+    font-size: clamp(0.9rem, 3.5vw, 1rem);
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .gender-options {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .gender-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    border: 1.5px solid #a0405080;
+    background: transparent;
+    color: var(--blush);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 4vw, 1.1rem);
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    /* better touch target */
+    min-height: 52px;
+    touch-action: manipulation;
+  }
+  .gender-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #e8395a22, transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gender-btn:active::before { opacity: 1; }
+  .gender-btn:active {
+    border-color: var(--rose);
+    color: #fff;
+    box-shadow: 0 0 20px #e8395a44;
+    transform: scale(0.98);
+  }
+  @media (hover: hover) {
+    .gender-btn:hover::before { opacity: 1; }
+    .gender-btn:hover {
+      border-color: var(--rose);
+      color: #fff;
+      box-shadow: 0 0 20px #e8395a44;
+      transform: translateY(-2px);
+    }
+  }
+  .gender-btn.angel {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .gender-btn.angel:active {
+    box-shadow: 0 0 25px #d4a85366;
+    color: #fff8e1;
+    border-color: #f0c96a;
+  }
+  @media (hover: hover) {
+    .gender-btn.angel:hover {
+      box-shadow: 0 0 25px #d4a85366;
+      color: #fff8e1;
+      border-color: #f0c96a;
+    }
+  }
+
+  /* WRONG GENDER OVERLAY */
+  #wrongOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 200;
+    background: rgba(10,2,6,0.95);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+  }
+  #wrongOverlay.show { display: flex; animation: fadeIn 0.4s ease; }
+
+  .wrong-heart { font-size: clamp(2.5rem, 12vw, 4rem); animation: pulse 1.2s infinite; margin-bottom: 1rem; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+  #wrongOverlay h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 6vw, 2.5rem);
+    color: var(--rose);
+    margin-bottom: 1rem;
+    font-style: italic;
+    line-height: 1.3;
+  }
+  #wrongOverlay p {
+    color: var(--blush);
+    font-size: clamp(0.95rem, 3.5vw, 1.3rem);
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .try-again-btn {
+    padding: 0.85rem 2rem;
+    border: 1.5px solid var(--rose);
+    background: transparent;
+    color: var(--rose);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.95rem, 3.5vw, 1rem);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 52px;
+    min-width: 180px;
+    touch-action: manipulation;
+  }
+  .try-again-btn:active { background: var(--rose); color: #fff; }
+  @media (hover: hover) {
+    .try-again-btn:hover { background: var(--rose); color: #fff; }
+  }
+
+  /* MAIN SORRY PAGE */
+  #mainPage {
+    display: none;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    position: relative;
+    z-index: 10;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 1.5rem 4rem;
+  }
+  #mainPage.show { display: flex; animation: fadeIn 1s ease; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
+    will-change: opacity;
+  }
+  @keyframes twinkle { 0%,100%{opacity:0.1} 50%{opacity:0.9} }
+
+  .sorry-container {
+    position: relative; z-index: 10;
+    max-width: 600px;
+    width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .big-heart {
+    font-size: clamp(3rem, 14vw, 5rem);
+    display: block;
+    animation: heartbeat 1.5s ease-in-out infinite;
+    margin-bottom: 0.8rem;
+    filter: drop-shadow(0 0 20px #e8395a88);
+    will-change: transform;
+  }
+  @keyframes heartbeat {
+    0%,100%{transform:scale(1)}
+    14%{transform:scale(1.18)}
+    28%{transform:scale(1)}
+    42%{transform:scale(1.12)}
+    56%{transform:scale(1)}
+  }
+
+  .name-tag {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 8vw, 4rem);
+    color: var(--blush);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 0 40px #e8395a55;
+    line-height: 1.2;
+  }
+
+  .divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    margin: 1rem auto;
+  }
+
+  .sorry-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 11vw, 5rem);
+    color: var(--rose);
+    font-style: italic;
+    text-shadow: 0 0 60px #e8395a66;
+    margin-bottom: 0.8rem;
+    animation: glow 3s ease-in-out infinite;
+    line-height: 1.1;
+  }
+  @keyframes glow {
+    0%,100%{text-shadow:0 0 40px #e8395a44}
+    50%{text-shadow:0 0 80px #e8395a99, 0 0 120px #e8395a33}
+  }
+
+  .messages {
+    color: var(--blush);
+    font-size: clamp(0.95rem, 3.5vw, 1.25rem);
+    line-height: 1.9;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeIn 1.5s ease 0.8s forwards;
+    padding: 0 0.5rem;
+  }
+
+  .love-line {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 4.5vw, 2rem);
+    color: var(--gold);
+    margin: 1.2rem 0;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeIn 1.5s ease 1.5s forwards;
+    line-height: 1.4;
+    padding: 0 0.5rem;
+  }
+
+  .petals-row {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+    letter-spacing: 0.2em;
+    opacity: 0;
+    animation: fadeIn 1s ease 2.2s forwards;
+    margin-top: 0.5rem;
+  }
+
+  .ring {
+    position: fixed;
+    border: 1px solid #e8395a22;
+    border-radius: 50%;
+    animation: expand linear infinite;
+    pointer-events: none;
+    z-index: 2;
+    will-change: transform, opacity;
+  }
+  @keyframes expand {
+    0% { transform: scale(0); opacity: 0.6; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+
+  /* Safe area support for notched phones */
+  @supports (padding: max(0px)) {
+    #genderScreen, #wrongOverlay, #mainPage {
+      padding-top: max(2rem, env(safe-area-inset-top));
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating Petals -->
+<div id="petalsContainer"></div>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Gender Selection Screen -->
+<div id="genderScreen">
+  <h1>Before you enter...</h1>
+  <p>Who are you ?,</p>
+  <div class="gender-options">
+    <button class="gender-btn" onclick="selectGender('male')">♂ Male</button>
+    <button class="gender-btn" onclick="selectGender('female')">♀ Female</button>
+    <button class="gender-btn angel" onclick="selectGender('angel')">✦ Angel</button>
+  </div>
+</div>
+
+<!-- Wrong Gender Overlay -->
+<div id="wrongOverlay">
+  <div class="wrong-heart">💔</div>
+  <h2>No no no, my love...</h2>
+  <p id="wrongMsg"></p>
+  <button class="try-again-btn" onclick="tryAgain()">Let me try again 🌹</button>
+</div>
+
+<!-- Main Sorry Page -->
+<div id="mainPage">
+  <div class="sorry-container">
+    <span class="big-heart">💕</span>
+    <div class="name-tag">Ammu...</div>
+    <div class="divider"></div>
+    <div class="sorry-title">I'm So Sorry</div>
+
+    <div class="divider"></div>
+
+    <div class="love-line">✦ Ammu, I'm sorry. I truly am. ✦</div>
+
+    <div class="love-line" style="animation-delay:2.5s; color: var(--rose);">
+      💗 I Love You, Ammu. Forever & Always. 💗
+    </div>
+
+    <div class="petals-row">🌸 🌹 💕 🌹 🌸</div>
+  </div>
+</div>
+
+<script>
+  // Reduce petal count on mobile for performance
+  const isMobile = window.innerWidth < 768;
+  const petalCount = isMobile ? 10 : 18;
+  const petalsCont = document.getElementById('petalsContainer');
+  for (let i = 0; i < petalCount; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random()*100}vw;
+      top: ${Math.random()*-20}px;
+      animation-duration: ${5 + Math.random()*8}s;
+      animation-delay: ${Math.random()*6}s;
+      opacity: ${0.3 + Math.random()*0.5};
+      transform: scale(${0.5 + Math.random()});
+    `;
+    petalsCont.appendChild(p);
+  }
+
+  // Reduce star count on mobile
+  const starCount = isMobile ? 35 : 60;
+  const starsCont = document.getElementById('stars');
+  for (let i = 0; i < starCount; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left: ${Math.random()*100}%;
+      top: ${Math.random()*100}%;
+      animation-duration: ${2 + Math.random()*3}s;
+      animation-delay: ${Math.random()*3}s;
+      width: ${Math.random() > 0.7 ? '3px' : '2px'};
+      height: ${Math.random() > 0.7 ? '3px' : '2px'};
+    `;
+    starsCont.appendChild(s);
+  }
+
+  const wrongMessages = {
+    male: `You're not just a male — idiot, select wisely 😏`,
+    female: `My darling... you are so much more than just "female" — you are grace, warmth, and light. But only someone who is truly an Angel deserves to step inside this place of love. 🌹 Please go back and choose wisely...`
+  };
+
+  function selectGender(g) {
+    if (g === 'angel') {
+      document.getElementById('genderScreen').style.display = 'none';
+      document.getElementById('mainPage').classList.add('show');
+      spawnRings();
+    } else {
+      document.getElementById('wrongMsg').textContent = wrongMessages[g];
+      document.getElementById('wrongOverlay').classList.add('show');
+    }
+  }
+
+  function tryAgain() {
+    document.getElementById('wrongOverlay').classList.remove('show');
+  }
+
+  function spawnRings() {
+    // fewer rings on mobile
+    const interval = isMobile ? 2200 : 1500;
+    setInterval(() => {
+      const ring = document.createElement('div');
+      ring.className = 'ring';
+      const size = 80 + Math.random() * 200;
+      ring.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        left: calc(50% - ${size/2}px);
+        top: calc(50% - ${size/2}px);
+        animation-duration: ${3 + Math.random()*3}s;
+      `;
+      document.body.appendChild(ring);
+      setTimeout(() => ring.remove(), 6000);
+    }, interval);
+  }
+</script>
+</body>
+</html>
